@@ -145,9 +145,21 @@ El código separa la interfaz, las reglas de negocio y la persistencia. Los tipo
 
 ## Próximos pasos
 
+## Publicación en Netlify
+
+La configuración está en `netlify.toml`. Usa `pnpm build`, publica `dist/client` y ejecuta la API desde `netlify/functions/nexo.mts`.
+
+Netlify Database utiliza PostgreSQL. La migración `netlify/database/migrations/0001_sessions.sql` crea la tabla de sesiones y se aplica durante el despliegue. La conexión se obtiene con `@netlify/database`; no se guardan contraseñas en el repositorio. Si la cuenta no crea la base automáticamente, créala desde **Data & Storage > Database** en el proyecto antes de verificar la aplicación.
+
+Cada sesión conserva su estado en una fila, con consultas parametrizadas y control de versión para evitar que actualizaciones simultáneas sobrescriban cambios. La prueba `tests/postgres.test.ts` ejecuta la migración y comprueba persistencia, aislamiento y concurrencia con PostgreSQL embebido (PGlite). Los datos del alojamiento anterior no se migran automáticamente.
+
+El servidor local continúa usando SQLite. El código para Cloudflare se conserva como alternativa de alojamiento.
+
+## Mejoras pendientes
+
 Estas mejoras están pendientes; no forman parte de la versión actual:
 
-- Preparar y verificar una publicación en Netlify con backend y persistencia compatibles.
+- Verificar la primera publicación en Netlify y su base de datos alojada.
 - Añadir búsqueda por identificador de evento y sus pruebas.
 - Incorporar una guía dentro de la aplicación para explicar cada escenario.
 

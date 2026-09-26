@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS demo_sessions (
+ id TEXT PRIMARY KEY,
+ state_json TEXT NOT NULL,
+ version INTEGER NOT NULL DEFAULT 1,
+ csrf TEXT NOT NULL,
+ updated_at INTEGER NOT NULL
+);

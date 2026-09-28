@@ -2738,6 +2738,10 @@ label { color: #c2c9ba; }
 .metric.purple::before { background: #cf9fd1; }
 .metric-top { color: #b6c4b4; font-size: 11px; }
 .metric-top svg { color: #9fb19a; }
+.metric.green .metric-top svg { color: var(--signal); }
+.metric.blue .metric-top svg { color: #95bbda; }
+.metric.amber .metric-top svg { color: #f1bd71; }
+.metric.purple .metric-top svg { color: #cf9fd1; }
 .metric > strong { font-size: clamp(27px, 2.4vw, 38px); font-weight: 650; letter-spacing: -.06em; margin: 23px 0 10px; }
 .metric p { color: #9ba998; font-size: 10px; }
 .metric p > span, .legend > span { background: var(--signal); }

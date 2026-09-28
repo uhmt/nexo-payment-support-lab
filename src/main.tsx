@@ -20,7 +20,6 @@ import {
   ExternalLink,
   FileJson,
   FlaskConical,
-  LayoutDashboard,
   LifeBuoy,
   Link2,
   LoaderCircle,
@@ -43,6 +42,18 @@ import {
   Zap,
 } from 'lucide-react';
 import type { State, Order, Scenario, Incident, Command, Envelope, Delivery } from './types';
+import {
+  ActivityIcon,
+  ApprovedIcon,
+  DeclinedIcon,
+  DelayedIcon,
+  DuplicateIcon,
+  GuideIcon,
+  IncidentsIcon,
+  OrdersIcon,
+  OverviewIcon,
+  SimulatorIcon,
+} from './nexo-icons';
 import './style.css';
 
 type View = 'overview' | 'orders' | 'simulator' | 'incidents' | 'activity' | 'guide';
@@ -93,7 +104,7 @@ const scenarioData: Record<
     title: string;
     tag: string;
     description: string;
-    icon: typeof Check;
+    icon: React.ComponentType<{ size?: number }>;
     className: string;
     action: string;
     lesson: string;
@@ -104,7 +115,7 @@ const scenarioData: Record<
     tag: 'EL PUNTO DE PARTIDA',
     description:
       'El pago se aprueba y la confirmación llega al pedido. Conoce el recorrido completo.',
-    icon: CheckCircle2,
+    icon: ApprovedIcon,
     className: 'green',
     action: 'Simular pago aprobado',
     lesson: 'El proveedor confirma el pago, el evento se procesa y el pedido queda confirmado.',
@@ -113,7 +124,7 @@ const scenarioData: Record<
     title: 'Pago rechazado',
     tag: 'ESCENARIO 01',
     description: 'El cliente no logra pagar. Investiga el rechazo y prueba un nuevo intento.',
-    icon: CreditCard,
+    icon: DeclinedIcon,
     className: 'red',
     action: 'Simular rechazo',
     lesson:
@@ -123,7 +134,7 @@ const scenarioData: Record<
     title: 'La conexión perdida',
     tag: 'ESCENARIO 02',
     description: 'El pago fue aprobado, pero el pedido sigue pendiente. Una notificación no llegó.',
-    icon: Webhook,
+    icon: DelayedIcon,
     className: 'amber',
     action: 'Simular notificación fallida',
     lesson:
@@ -134,7 +145,7 @@ const scenarioData: Record<
     tag: 'ESCENARIO 03',
     description:
       'La misma confirmación llega dos veces. Comprueba que el pedido se procesa una sola vez.',
-    icon: Copy,
+    icon: DuplicateIcon,
     className: 'purple',
     action: 'Simular duplicado',
     lesson:
@@ -401,12 +412,17 @@ function App() {
   const recommended =
     orders.find((o) => o.status === 'pending') || orders.find((o) => o.status === 'failed');
   const nav = [
-    { id: 'overview', name: 'Resumen', icon: LayoutDashboard },
-    { id: 'orders', name: 'Pedidos', icon: Package },
-    { id: 'incidents', name: 'Incidencias', icon: LifeBuoy },
-    { id: 'activity', name: 'Actividad', icon: Activity },
+    { id: 'overview', name: 'Resumen', icon: OverviewIcon },
+    { id: 'orders', name: 'Pedidos', icon: OrdersIcon },
+    { id: 'incidents', name: 'Incidencias', icon: IncidentsIcon },
+    { id: 'activity', name: 'Actividad', icon: ActivityIcon },
   ] as const;
-  const navButton = (id: View, name: string, Icon: typeof Check, count?: number) => (
+  const navButton = (
+    id: View,
+    name: string,
+    Icon: React.ComponentType<{ size?: number }>,
+    count?: number,
+  ) => (
     <button key={id} className={`nav-item ${view === id ? 'selected' : ''}`} onClick={() => go(id)}>
       <Icon size={19} />
       <span>{name}</span>
@@ -570,8 +586,8 @@ function App() {
             navButton(n.id, n.name, n.icon, n.id === 'incidents' ? active.length : undefined),
           )}
           <p className="nav-label lab-label">LABORATORIO</p>
-          {navButton('simulator', 'Simulador', FlaskConical)}
-          {navButton('guide', 'Cómo funciona', BookOpen)}
+          {navButton('simulator', 'Simulador', SimulatorIcon)}
+          {navButton('guide', 'Cómo funciona', GuideIcon)}
         </nav>
         <div className="sidebar-bottom">
           <div className="sandbox-card">
@@ -678,7 +694,7 @@ function App() {
                 <Metric
                   title="Pagos aprobados"
                   value={money(approved.reduce((s, o) => s + o.amount, 0))}
-                  icon={CreditCard}
+                  icon={ApprovedIcon}
                   note={`${approved.length} de ${scope.length} pagos`}
                   tone="green"
                   spark={[2, 4, 3, 6, 5, 7, 8]}
@@ -686,7 +702,7 @@ function App() {
                 <Metric
                   title="Pedidos confirmados"
                   value={String(confirmed.length).padStart(2, '0')}
-                  icon={CheckCircle2}
+                  icon={OrdersIcon}
                   note={`${scope.length ? Math.round((confirmed.length / scope.length) * 100) : 0}% de los pedidos`}
                   tone="blue"
                   spark={[4, 3, 5, 4, 7, 6, 8]}
@@ -694,7 +710,7 @@ function App() {
                 <Metric
                   title="Por sincronizar"
                   value={String(pending.length).padStart(2, '0')}
-                  icon={Webhook}
+                  icon={DelayedIcon}
                   note={
                     pending.length ? 'Pago aprobado, pedido pendiente' : 'Todo está sincronizado'
                   }
@@ -703,7 +719,7 @@ function App() {
                 <Metric
                   title="Incidencias activas"
                   value={String(active.length).padStart(2, '0')}
-                  icon={LifeBuoy}
+                  icon={IncidentsIcon}
                   note={`${incidents.filter((i) => i.status === 'resolved').length} resueltas en esta sesión`}
                   tone="purple"
                 />
@@ -1344,7 +1360,7 @@ function Metric({
 }: {
   title: string;
   value: string;
-  icon: typeof Check;
+  icon: React.ComponentType<{ size?: number }>;
   note: string;
   tone: string;
   spark?: number[];

@@ -1196,7 +1196,7 @@ function App() {
             </span>
             <span>Diseñado para aprender. Construido para explorar.</span>
             <a
-              href="https://diego-garcia-web.holamellamodiego618.chatgpt.site"
+              href="https://github.com/uhmt/nexo-payment-support-lab"
               target="_blank"
               rel="noreferrer"
             >

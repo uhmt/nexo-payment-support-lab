@@ -4,9 +4,11 @@
 
 Nexo es una aplicación interactiva para simular problemas de pagos, investigar su causa y documentar una solución. Permite recorrer el proceso completo: crear un pedido, provocar una incidencia, revisar los eventos y resolver el caso.
 
+**[Probar la demo](https://nexoproj.netlify.app/)** · Datos ficticios, sin pagos reales ni registro de cuenta.
+
 Proyecto de **Diego García**, que conecta mi experiencia en atención bancaria con mi formación en desarrollo de software.
 
-**React · TypeScript · Node.js · Express · SQLite · Cloudflare Workers / D1**
+**React · TypeScript · Netlify Functions · PostgreSQL** en la demo pública. **Node.js · Express · SQLite** en desarrollo local.
 
 > Todo ocurre en un entorno de simulación con datos ficticios. Nexo no mueve dinero ni se conecta a bancos o proveedores de pago reales.
 
@@ -43,8 +45,9 @@ Que un proveedor apruebe un pago no significa que una tienda haya recibido la co
 | CSS | Interfaz oscura y diseño adaptable a móvil y escritorio |
 | Node.js + Express | Servidor local que atiende solicitudes de la interfaz |
 | SQLite | Almacenamiento local de sesiones y su historial |
-| Cloudflare Workers + D1 | Backend y persistencia de la versión alojada actual |
-| Drizzle Kit | Definición y generación de migraciones para la base alojada |
+| Netlify Functions + PostgreSQL | API y persistencia de la demo pública |
+| Cloudflare Workers + D1 | Alternativa de alojamiento que se conserva en el código |
+| Drizzle Kit | Generación de migraciones para la alternativa de Cloudflare D1 |
 | esbuild | Compilación y empaquetado de la aplicación |
 | Node.js Test Runner + tsx | Ejecución de pruebas automatizadas escritas en TypeScript |
 | Lucide | Iconos de la interfaz |
@@ -131,7 +134,7 @@ La interfaz usa React y TypeScript; el backend comparte las mismas reglas entre 
 
 `GET /api/health` informa si el proceso responde; no comprueba la conectividad de la base.
 
-Para cambiar el esquema alojado, edita `db/schema.ts` y ejecuta `pnpm exec drizzle-kit generate`. Revisa y conserva las migraciones generadas. Nunca modifiques una migración ya aplicada. El esquema local inicial está en `migrations/0001_sessions.sql`.
+Para cambiar el esquema de la demo alojada en Netlify, añade una nueva migración SQL en `netlify/database/migrations/`. Para la alternativa de Cloudflare D1, edita `db/schema.ts` y genera una migración con `pnpm exec drizzle-kit generate`. Revisa las migraciones antes de aplicarlas y no modifiques una que ya se haya aplicado. El esquema local inicial está en `migrations/0001_sessions.sql`.
 
 ## Verificación
 
@@ -143,13 +146,11 @@ Desarrollado con asistencia de herramientas de IA.
 
 El código separa la interfaz, las reglas de negocio y la persistencia. Los tipos compartidos están en `src/types.ts`; la simulación, en `server/domain.ts`; los endpoints, en `server/api.ts`; y el control de actualizaciones concurrentes, en `server/store.ts`.
 
-## Próximos pasos
-
 ## Publicación en Netlify
 
 La configuración está en `netlify.toml`. Usa `pnpm build`, publica `dist/client` y ejecuta la API desde `netlify/functions/nexo.mts`.
 
-Netlify Database utiliza PostgreSQL. La migración `netlify/database/migrations/0001_sessions.sql` crea la tabla de sesiones y se aplica durante el despliegue. La conexión se obtiene con `@netlify/database`; no se guardan contraseñas en el repositorio. Si la cuenta no crea la base automáticamente, créala desde **Data & Storage > Database** en el proyecto antes de verificar la aplicación.
+La [demo pública](https://nexoproj.netlify.app/) usa Netlify Database con PostgreSQL. La migración `netlify/database/migrations/0001_sessions.sql` crea la tabla de sesiones. La conexión se obtiene con `@netlify/database`; no se guardan contraseñas en el repositorio.
 
 Cada sesión conserva su estado en una fila, con consultas parametrizadas y control de versión para evitar que actualizaciones simultáneas sobrescriban cambios. La prueba `tests/postgres.test.ts` ejecuta la migración y comprueba persistencia, aislamiento y concurrencia con PostgreSQL embebido (PGlite). Los datos del alojamiento anterior no se migran automáticamente.
 
@@ -159,7 +160,6 @@ El servidor local continúa usando SQLite. El código para Cloudflare se conserv
 
 Estas mejoras están pendientes; no forman parte de la versión actual:
 
-- Verificar la primera publicación en Netlify y su base de datos alojada.
 - Añadir búsqueda por identificador de evento y sus pruebas.
 - Incorporar una guía dentro de la aplicación para explicar cada escenario.
 
